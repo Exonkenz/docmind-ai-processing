@@ -36,7 +36,10 @@ async def process_document(req: ProcessRequest):
     try:
         text = extract_text_from_file(req.file_contents, req.filename)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")
+        import traceback
+        print(f"ERROR: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"LLM extraction failed: {str(e)}")
 
     if not text or len(text.strip()) < 10:
         raise HTTPException(status_code=400, detail="Could not extract text from document")
@@ -98,6 +101,9 @@ Document:
     except json.JSONDecodeError as e:
         raise HTTPException(status_code=500, detail=f"Failed to parse LLM response: {str(e)}")
     except Exception as e:
+        import traceback
+        print(f"ERROR: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"LLM extraction failed: {str(e)}")
 
 class SummarizeRequest(BaseModel):

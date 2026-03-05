@@ -8,7 +8,9 @@ import datetime
 
 app = FastAPI(title="DocMind Processing Service")
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+raw_key = os.environ.get("ANTHROPIC_API_KEY", "")
+clean_key = raw_key.encode('ascii', 'ignore').decode('ascii')
+client = anthropic.Anthropic(api_key=clean_key)
 
 class ProcessRequest(BaseModel):
     document_id: str

@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pdfminer.six
+mistune
+anthropic
+python-multipart

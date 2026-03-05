@@ -12,26 +12,29 @@ client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
 class ProcessRequest(BaseModel):
     document_id: str
-    file_path: str
+    file_contents: str
     filename: str
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
-def extract_text_from_file(file_path: str, filename: str) -> str:
+def extract_text_from_file(file_contents: str, filename: str) -> str:
+    import base64
+    import io
+    raw = base64.b64decode(file_contents)
     ext = filename.lower().split('.')[-1]
     if ext == 'pdf':
-        return extract_text(file_path)
+        from pdfminer.high_level import extract_text
+        return extract_text(io.BytesIO(raw))
     else:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
+        return raw.decode('utf-8')
 
 @app.post("/process")
 async def process_document(req: ProcessRequest):
     # Step 1: Extract text
     try:
-        text = extract_text_from_file(req.file_path, req.filename)
+        text = extract_text_from_file(req.file_contents, req.filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")
 
